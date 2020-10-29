@@ -29,10 +29,10 @@ class AnimalControllerTest {
 	private WebTestClient webTestClient;
 
 	@Autowired
-	private AdoptionRequestRepository adoptionRequestRepository;
+	private AnimalRepository animalRepository;
 
 	@Autowired
-	private AnimalRepository animalRepository;
+	private AdoptionRequestRepository adoptionRequestRepository;
 
 	@MockBean(answer = Answers.RETURNS_DEEP_STUBS)
 	private CfEnv cfEnv;
@@ -277,5 +277,4 @@ class AnimalControllerTest {
 			.get()
 			.getId();
 	}
-
 }

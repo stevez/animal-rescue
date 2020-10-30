@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOidcLogin;
 
 @WebFluxTest(controllers = AdoptionController.class)
 class AdoptionControllerTest {
@@ -32,6 +34,26 @@ class AdoptionControllerTest {
 		request.setNotes("Test");
 
 		this.webTestClient.mutateWith(csrf())
+			.post().uri("/animals/1/adoption-requests")
+			.bodyValue(request)
+			.exchange()
+			.expectStatus().isCreated();
+
+		AdoptionRequest expectedRequest = new AdoptionRequest();
+		expectedRequest.setEmail("bob@example.com");
+		expectedRequest.setNotes("Test");
+		expectedRequest.setAdopterName(TEST_USER_NAME);
+
+		verify(adoptionService).add(eq(1L), refEq(expectedRequest));
+	}
+
+	@Test
+	void shouldAddAdoptionRequestForOAuth2Users() {
+		AdoptionRequest request = new AdoptionRequest();
+		request.setEmail("bob@example.com");
+		request.setNotes("Test");
+		this.webTestClient.mutateWith(csrf())
+			.mutateWith(mockOidcLogin().idToken(id -> id.subject(TEST_USER_NAME)))
 			.post().uri("/animals/1/adoption-requests")
 			.bodyValue(request)
 			.exchange()

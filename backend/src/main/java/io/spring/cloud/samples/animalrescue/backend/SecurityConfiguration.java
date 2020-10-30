@@ -37,9 +37,12 @@ public class SecurityConfiguration {
 		// @formatter:off
 		RedirectServerLogoutSuccessHandler logoutHandler = new RedirectServerLogoutSuccessHandler();
 		logoutHandler.setLogoutSuccessUrl(URI.create("http://localhost:3000/rescue"));
+		RedirectServerAuthenticationSuccessHandler authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler("http://localhost:3000/rescue");
+
 		return httpSecurity
 			.httpBasic().disable()
-			.formLogin().authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("http://localhost:3000/rescue")).and()
+			.formLogin().authenticationSuccessHandler(authenticationSuccessHandler).and()
+			.oauth2Login().authenticationSuccessHandler(authenticationSuccessHandler).and()
 			.logout()
 				.logoutSuccessHandler(logoutHandler)
 				.and()

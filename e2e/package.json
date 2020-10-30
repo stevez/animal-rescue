@@ -12,10 +12,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cypress": "^5.0.0",
     "eslint": "^7.7.0",
     "eslint-plugin-cypress": "^2.11.1",
     "wait-on": "^5.2.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "cypress": "^5.5.0"
+  }
 }

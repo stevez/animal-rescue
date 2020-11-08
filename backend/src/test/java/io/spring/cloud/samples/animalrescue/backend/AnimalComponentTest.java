@@ -19,9 +19,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+	properties = {
+//		"spring.datasource.initialization-mode=always",
+//		"spring.datasource.url=jdbc:tc:postgresql:10.15:///databasename"
+	})
 @AutoConfigureWebTestClient
 class AnimalComponentTest {
+
+//	public static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:10:15"));
+//
+//	@DynamicPropertySource
+//	static void redisProperties(DynamicPropertyRegistry registry) {
+//		postgres.start();
+//		registry.add("spring.datasource.url", postgres::getJdbcUrl);
+//		registry.add("spring.datasource.username", postgres::getUsername);
+//		registry.add("spring.datasource.password", postgres::getPassword);
+//	}
 
 	@Autowired
 	private WebTestClient webTestClient;
@@ -95,6 +110,7 @@ class AnimalComponentTest {
 				.exchange()
 				.expectStatus().isOk()
 				.expectBody()
+				.jsonPath("$.length()").isEqualTo(9)
 				.jsonPath("$[0].id").isEqualTo(1)
 				.jsonPath("$[0].name").isEqualTo("Chocobo")
 				.jsonPath("$[0].adoptionRequests.length()").isEqualTo(currentAdoptionRequestCountForAnimalId1 + 1)

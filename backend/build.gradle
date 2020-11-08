@@ -45,7 +45,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
-    runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2'
+//	runtimeOnly 'org.postgresql:postgresql:42.2.18'
+//	testImplementation "org.testcontainers:postgresql:1.15.0"
 
 	testImplementation('org.springframework.security:spring-security-test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {

@@ -3,6 +3,7 @@ package io.spring.cloud.samples.animalrescue.backend;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class AdoptionService {
 			.orElseThrow(() -> new IllegalArgumentException("Animal with ID " + animalId + " is not found"));
 	}
 
-	public AdoptionRequest update(Long animalId, AdoptionRequest request) {
+	public AdoptionRequest update(@NonNull Long animalId, AdoptionRequest request) {
 		return this.animalRepository.findById(animalId)
 			.map(animal -> {
 				AdoptionRequest existingRequest = animal.getAdoptionRequests().stream()

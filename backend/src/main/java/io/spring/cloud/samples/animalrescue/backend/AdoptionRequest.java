@@ -2,6 +2,7 @@ package io.spring.cloud.samples.animalrescue.backend;
 
 import org.springframework.data.annotation.Id;
 
+@SuppressWarnings("nullness")
 public class AdoptionRequest {
 	@Id
 	private Long id;

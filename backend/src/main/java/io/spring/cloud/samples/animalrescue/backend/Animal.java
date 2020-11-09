@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.springframework.data.annotation.Id;
 
+@SuppressWarnings("nullness")
 public class Animal {
 
 	@Id

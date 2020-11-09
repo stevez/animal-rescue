@@ -1,8 +1,10 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -15,8 +17,12 @@ class UserNameJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthe
 		= new JwtGrantedAuthoritiesConverter();
 
 	@Override
-	public AbstractAuthenticationToken convert(Jwt jwt) {
+	public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
+		if (authorities == null) {
+			authorities = Collections.emptyList();
+		}
+
 		return new JwtAuthenticationToken(jwt, authorities, getUserName(jwt));
 	}
 

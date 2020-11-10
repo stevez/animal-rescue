@@ -7,16 +7,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
-import io.pivotal.cfenv.core.CfEnv;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -33,9 +30,6 @@ class AnimalControllerTest {
 
 	@Autowired
 	private AdoptionRequestRepository adoptionRequestRepository;
-
-	@MockBean(answer = Answers.RETURNS_DEEP_STUBS)
-	private CfEnv cfEnv;
 
 	private long currentAdoptionRequestCountForAnimalId1;
 

@@ -40,8 +40,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
- 	implementation("io.pivotal.cfenv:java-cfenv-boot:2.1.1.RELEASE")
-
     runtimeOnly 'com.h2database:h2'
 
 	testImplementation('org.springframework.security:spring-security-test')

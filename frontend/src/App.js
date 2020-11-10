@@ -13,7 +13,7 @@ const PENDING = 'pending', AUTHENTICATED = 'authenticated', ANONYMOUS = 'anonymo
 export default class App extends React.Component {
 
     #loginLink = process.env.REACT_APP_LOGIN_URI || '/rescue/login';
-    #logoutLink = process.env.REACT_APP_LOGOUT_URI || '/scg-logout?redirect=/rescue';
+    #logoutLink = process.env.REACT_APP_LOGOUT_URI || '/rescue/logout?redirect=/rescue';
 
     constructor(props, context) {
         super(props, context);

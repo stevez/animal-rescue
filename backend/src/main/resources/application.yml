@@ -21,7 +21,3 @@ spring:
         provider:
           github:
             user-name-attribute: name
-
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://any.uaa.uri/token_keys

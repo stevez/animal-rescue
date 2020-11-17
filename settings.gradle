@@ -5,5 +5,6 @@ pluginManagement {
 }
 
 include "backend"
+include "contracts"
 include "e2e"
 include "frontend"

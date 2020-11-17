@@ -7,6 +7,7 @@ QUIET_MODE="--quiet"
 
 init() {
   ./gradlew assemble
+  ./gradlew :contracts:install
 }
 
 stopFrontend() {

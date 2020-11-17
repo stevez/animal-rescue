@@ -1,0 +1,15 @@
+plugins {
+	id "org.springframework.cloud.contract" version "${springCloudContractPluginVersion}"
+	id 'maven'
+}
+
+apply plugin: 'spring-cloud-contract'
+
+group = 'io.spring.cloud.samples.animalrescue'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+test.enabled = false

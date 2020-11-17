@@ -9,15 +9,3 @@ management:
 
 logging.level:
   org.springframework.data: debug
-
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            client-id: ${github.client-id:fake-value-to-start-the-app}
-            client-secret: ${github.client-secret:fake-value-to-start-the-app}
-        provider:
-          github:
-            user-name-attribute: name

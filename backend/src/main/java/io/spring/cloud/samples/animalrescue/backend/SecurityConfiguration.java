@@ -41,7 +41,6 @@ public class SecurityConfiguration {
 		return httpSecurity
 			.httpBasic().disable()
 			.formLogin().authenticationSuccessHandler(authenticationSuccessHandler).and()
-			.oauth2Login().authenticationSuccessHandler(authenticationSuccessHandler).and()
 			.logout()
 				.logoutSuccessHandler(logoutHandler)
 				.and()

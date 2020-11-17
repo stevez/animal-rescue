@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -43,9 +44,8 @@ class AnimalControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "test-user", authorities = {"adoption.request"})
 	void getUserName() {
-		webTestClient
+		webTestClient.mutateWith(mockUser("test-user"))
 			.get()
 			.uri("/whoami")
 			.exchange()
@@ -77,8 +77,12 @@ class AnimalControllerTest {
 	@Nested
 	class SubmitAdoptionRequest {
 
+		@BeforeEach
+		void setUp() {
+			webTestClient = webTestClient.mutateWith(mockUser("test-user-1"));
+		}
+
 		@Test
-		@WithMockUser(username = "test-user-1", authorities = { "adoption.request" })
 		void succeeds() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -100,7 +104,6 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-1", authorities = { "adoption.request" })
 		void failsIfAnimalNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -119,8 +122,12 @@ class AnimalControllerTest {
 	@Nested
 	class EditAdoptionRequest {
 
+		@BeforeEach
+		void setUp() {
+			webTestClient = webTestClient.mutateWith(mockUser("test-user-2"));
+		}
+
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
 		void succeeds() {
 			String testEmail = "b@email.com";
 			String testNotes = "Plzzzz!";
@@ -144,7 +151,6 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
 		void failsIfNotTheOriginalRequester() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -160,14 +166,13 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
 		void failsIfAnimalNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
 
 			Map<String, String> requestBody = getRequestBody(testEmail, testNotes);
 
-			webTestClient
+			webTestClient.mutateWith(mockUser("test-user-2"))
 				.put()
 				.uri("/animals/1000/adoption-requests/2")
 				.body(BodyInserters.fromValue(requestBody))
@@ -176,14 +181,13 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
 		void failsIfAdoptionRequestNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
 
 			Map<String, String> requestBody = getRequestBody(testEmail, testNotes);
 
-			webTestClient
+			webTestClient.mutateWith(mockUser("test-user-2"))
 				.put()
 				.uri("/animals/1/adoption-requests/2000")
 				.body(BodyInserters.fromValue(requestBody))
@@ -193,10 +197,10 @@ class AnimalControllerTest {
 	}
 
 	@Nested
+	@WithMockUser(username = "test-user-3")
 	class DeleteAdoptionRequest {
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
 		void succeeds() {
 			adopt("dummy", "dummy");
 			long newId = getNewlyCreatedRequestId(1L, "test-user-3");
@@ -212,7 +216,6 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
 		void failsIfNotTheOriginalRequester() {
 			webTestClient
 				.delete()
@@ -222,7 +225,6 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
 		void failsIfAnimalNotFound() {
 			webTestClient
 				.delete()
@@ -232,7 +234,6 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
 		void failsIfAdoptionRequestNotFound() {
 			webTestClient
 				.delete()

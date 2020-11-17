@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -47,6 +48,9 @@ public class SecurityConfiguration {
 			.csrf().disable()
 			.authorizeExchange()
 				.pathMatchers("/whoami").authenticated()
+				.pathMatchers(HttpMethod.POST, "/animals/*/adoption-requests").authenticated()
+				.pathMatchers(HttpMethod.PUT, "/animals/*/adoption-requests/*").authenticated()
+				.pathMatchers(HttpMethod.DELETE, "/animals/*/adoption-requests/*").authenticated()
 				.anyExchange().permitAll()
 			.and()
 			.build();

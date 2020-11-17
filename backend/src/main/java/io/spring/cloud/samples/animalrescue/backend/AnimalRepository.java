@@ -1,6 +1,6 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface AnimalRepository extends CrudRepository<Animal, Long> {
+public interface AnimalRepository extends PagingAndSortingRepository<Animal, Long> {
 }

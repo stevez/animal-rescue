@@ -22,8 +22,8 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 @SpringBootTest(
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 	properties = {
-//		"spring.datasource.initialization-mode=always",
-//		"spring.datasource.url=jdbc:tc:postgresql:10.15:///databasename"
+		"spring.datasource.initialization-mode=always",
+		"spring.datasource.url=jdbc:tc:postgresql:10.15:///databasename"
 	})
 @AutoConfigureWebTestClient
 class AnimalComponentTest {

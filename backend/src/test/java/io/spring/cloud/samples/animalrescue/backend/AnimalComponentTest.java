@@ -21,7 +21,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-class AnimalControllerTest {
+class AnimalComponentTest {
 
 	@Autowired
 	private WebTestClient webTestClient;

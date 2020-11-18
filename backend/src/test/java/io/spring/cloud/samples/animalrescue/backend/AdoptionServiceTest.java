@@ -1,137 +1,79 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
-import java.util.Map;
+import java.time.Duration;
 
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.spring.cloud.samples.animalrescue.backend.fixtures.AdoptionCenterFixtures;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.util.SocketUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DataJdbcTest
+@SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AdoptionServiceTest {
 
+	private static final int PORT = SocketUtils.findAvailableTcpPort();
+
+	@RegisterExtension
+	final AdoptionCenterFixtures fixtures = new AdoptionCenterFixtures(PORT);
+
+	@Autowired
 	private AdoptionService adoptionService;
 
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
-
-	@Autowired
-	private AnimalRepository animalRepository;
-
-	@BeforeEach
-	void setUp() {
-		this.adoptionService = new AdoptionService(this.animalRepository);
+	@DynamicPropertySource
+	private static void dependencyProperties(DynamicPropertyRegistry registry) {
+		registry.add("adoption-center.uri", () -> "http://localhost:" + PORT);
 	}
 
 	@Test
-	void shouldAddAdoptionRequest() {
+	void addsAdoptionRequest() throws JsonProcessingException {
 		AdoptionRequest request = getTestRequest();
-		AdoptionRequest updatedRequest = this.adoptionService.add(1L, request);
+		fixtures.stubAddAdoptionWithDefaultResponse();
 
-		Map<String, Object> actualRequest = jdbcTemplate
-			.queryForMap("select * from adoption_request where id = ?", updatedRequest.getId());
+		AdoptionRequest response = this.adoptionService.add(1L, request).block(Duration.ofMinutes(1));
 
-		assertThat(actualRequest.get("email")).isEqualTo("test@example.com");
-		assertThat(actualRequest.get("animal")).isEqualTo(1L);
+		assertThat(response).isEqualTo(fixtures.getDefaultResponse());
+		fixtures.verifyAddAdoptionCalledWithBody(request, a -> a.setAnimalId(1L));
 	}
 
 	@Test
 	void shouldThrowExceptionWhenNoAnimalFoundOnAdd() {
+		fixtures.stubAddAdoptionWith400Response();
+		StepVerifier.create(adoptionService.add(1L, getTestRequest()))
+		            .expectError(IllegalArgumentException.class)
+		            .verify();
+	}
+
+	@Test
+	void deletesAdoptionRequest() {
 		AdoptionRequest request = getTestRequest();
-		assertThatThrownBy(() -> this.adoptionService.add(999L, request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.extracting(Throwable::getMessage)
-			.isEqualTo("Animal with ID 999 is not found");
+
+		this.adoptionService.delete(1L, request.getId(), request.getAdopterName())
+		                                               .block(Duration.ofMinutes(1));
+
+		fixtures.verifyDeleteAdoptionCalledWith(1L, request.getId(), request.getAdopterName());
 	}
 
 	@Test
-	void shouldUpdateAdoptionRequest() {
-		AdoptionRequest request = getTestRequest();
-		request = this.adoptionService.add(1L, request);
-
-		request.setNotes("Updated note");
-		request = this.adoptionService.update(1L, request);
-
-		Map<String, Object> actualRequest = jdbcTemplate
-			.queryForMap("select * from adoption_request where id = ?", request.getId());
-
-		assertThat(actualRequest.get("notes")).isEqualTo("Updated note");
-		assertThat(actualRequest.get("animal")).isEqualTo(1L);
-	}
-
-	@Test
-	void shouldThrowExceptionWhenNoAnimalFoundOnUpdate() {
-		AdoptionRequest request = getTestRequest();
-		assertThatThrownBy(() -> this.adoptionService.update(999L, request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.extracting(Throwable::getMessage)
-			.isEqualTo("Animal with ID 999 is not found");
-	}
-
-	@Test
-	void shouldThrowExceptionWhenNoRequestFoundOnUpdate() {
-		AdoptionRequest request = getTestRequest();
-		assertThatThrownBy(() -> this.adoptionService.update(1L, request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.extracting(Throwable::getMessage)
-			.isEqualTo("Request with ID 999 is not found");
-	}
-
-	@Test
-	void shouldThrowExceptionWhenAdopterNameChanged() {
-		AdoptionRequest request = getTestRequest();
-		this.adoptionService.add(1L, request);
-		request.setAdopterName("Bob");
-
-		assertThatThrownBy(() -> this.adoptionService.update(1L, request))
-			.isInstanceOf(AccessDeniedException.class)
-			.extracting(Throwable::getMessage)
-			.isEqualTo("User Bob has cannot edit user Alice's adoption request");
-	}
-
-	@Test
-	void shouldDeleteRequest() {
-		AdoptionRequest request = getTestRequest();
-		request = this.adoptionService.add(1L, request);
-		this.adoptionService.delete(1L, request.getId(), request.getAdopterName());
-
-		Integer count = jdbcTemplate
-			.queryForObject("select count(*) from adoption_request where id = ?", new Object[] {request.getId()}, Integer.class);
-
-		assertThat(count).isZero();
-	}
-
-	@Test
-	void shouldThrowExceptionWhenNoAnimalFoundOnDelete() {
-		assertThatThrownBy(() -> this.adoptionService.delete(999L, 1L, "Alice"))
-			.isInstanceOf(IllegalArgumentException.class)
-			.extracting(Throwable::getMessage)
-			.isEqualTo("Animal with ID 999 is not found");
-	}
-
-	@Test
-	void shouldThrowExceptionWhenNoRequestFoundOnDelete() {
-		assertThatThrownBy(() -> this.adoptionService.delete(1L, 999L, "Alice"))
-			.isInstanceOf(IllegalArgumentException.class)
-			.extracting(Throwable::getMessage)
-			.isEqualTo("Request with ID 999 is not found");
-	}
-
-	@Test
-	void shouldThrowExceptionWhenNonOwnerIsTryingToDeleteRequest() {
-		AdoptionRequest testRequest = this.getTestRequest();
-		this.adoptionService.add(1L, testRequest);
-
-		assertThatThrownBy(() -> this.adoptionService.delete(1L, testRequest.getId(), "Bob"))
-			.isInstanceOf(AccessDeniedException.class)
-			.extracting(Throwable::getMessage)
-			.isEqualTo("User Bob has cannot delete user Alice's adoption request");
+	void sampleStepVerifierTestOnTiming() {
+		StepVerifier.withVirtualTime(() -> Mono.delay(Duration.ofHours(20))
+		                                       .thenReturn("hello"))
+		            .expectSubscription()
+		            .expectNoEvent(Duration.ofHours(10))
+		            .thenAwait(Duration.ofHours(10))
+		            .expectNext("hello")
+		            .expectComplete()
+		            .verify();
 	}
 
 	private AdoptionRequest getTestRequest() {
@@ -139,6 +81,7 @@ class AdoptionServiceTest {
 		request.setId(999L);
 		request.setEmail("test@example.com");
 		request.setAdopterName("Alice");
+		request.setNotes("test notes");
 		return request;
 	}
 }

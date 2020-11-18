@@ -8,16 +8,3 @@ insert into animal (id, name, rescue_date, avatar_url, description) values
 (7, 'Mittens', '2020-01-22', 'https://cdn.pixabay.com/photo/2013/05/17/15/54/cat-111793_960_720.jpg', 'Mittens is a chubby cat that loves spending his days lounging and eating catnip.'),
 (8, 'Sabrina', '2020-01-24', 'https://cdn.pixabay.com/photo/2016/11/29/01/10/adorable-1866475_960_720.jpg', 'Sabrina is a friendly kitten with beautify blue eyes. She does not need lots of attention, but loves a good belly rub.'),
 (9, 'Georgie', '2020-01-29', 'https://cdn.pixabay.com/photo/2017/03/14/19/06/bulldog-2144110_960_720.jpg', 'Georgie will slobber all over you with his kisses. Does not require a lot of physical activity.');
-
-insert into adoption_request (id, animal, adopter_name, email, notes) values
-(1, 1, 'Bella', 'bella@email.com', 'Blah blah'),
-(2, 1, 'Gareth', 'gareth@email.com', 'Blah blah'),
-(3, 1, 'Chris', 'chris@email.com', 'Blah blah'),
-(4, 2, 'Alberto', 'alberto@email.com', 'Blah blah'),
-(5, 2, 'Roy', 'roy@email.com', 'Blah blah'),
-(6, 2, 'Dylan', 'dylan@email.com', 'Blah blah'),
-(7, 2, 'Craig', 'craig@email.com', 'Blah blah'),
-(8, 2, 'Alexey', 'alexey@email.com', 'Blah blah'),
-(9, 2, 'Erick', 'erick@email.com', 'Blah blah'),
-(10, 3, 'Ben', 'ben@email.com', 'Blah blah'),
-(11, 3, 'Mike', 'mike@email.com', 'Blah blah');

@@ -4,14 +4,10 @@ plugins {
 	id "org.springframework.boot" version "${springBootVersion}"
 	id 'java'
 	id 'jacoco'
-	id 'org.checkerframework' version '0.5.12'
 }
 
-group = 'io.spring.cloud.samples.animalrescue'
+group = 'io.spring.cloud.samples.partneradoptioncenter'
 version = '0.0.1-SNAPSHOT'
-
-sourceCompatibility = 11
-targetCompatibility = 11
 
 configurations {
 	developmentOnly
@@ -20,39 +16,23 @@ configurations {
 	}
 }
 
-checkerFramework {
-	excludeTests = true
-	checkers = [
-			'org.checkerframework.checker.nullness.NullnessChecker',
-	]
-}
-
 repositories {
 	mavenCentral()
 }
 
 dependencies {
 	implementation enforcedPlatform(SpringBootPlugin.BOM_COORDINATES)
-	developmentOnly enforcedPlatform(SpringBootPlugin.BOM_COORDINATES)
-
-	developmentOnly "org.springframework.boot:spring-boot-devtools"
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-
     runtimeOnly 'com.h2database:h2'
 
-	testImplementation "com.github.tomakehurst:wiremock:2.27.2"
-	testImplementation('org.springframework.security:spring-security-test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
-	testImplementation 'io.projectreactor:reactor-test'
 }
 
 test {

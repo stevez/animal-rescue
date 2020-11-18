@@ -9,6 +9,6 @@ management:
 
 logging.level:
   org.springframework.data: debug
+server:
+  port: 8090
 
-adoption-center:
-  uri: http://localhost:8090

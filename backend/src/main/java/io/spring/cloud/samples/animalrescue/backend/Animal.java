@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.springframework.data.annotation.Id;
 
 @SuppressWarnings("nullness")
@@ -21,8 +19,6 @@ public class Animal {
 	private String avatarUrl;
 
 	private String description;
-
-	private Set<AdoptionRequest> adoptionRequests = new HashSet<>();
 
 	@Override
 	public String toString() {
@@ -73,14 +69,6 @@ public class Animal {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public Set<AdoptionRequest> getAdoptionRequests() {
-		return adoptionRequests;
-	}
-
-	public void setAdoptionRequests(Set<AdoptionRequest> adoptionRequests) {
-		this.adoptionRequests = adoptionRequests;
 	}
 
 }

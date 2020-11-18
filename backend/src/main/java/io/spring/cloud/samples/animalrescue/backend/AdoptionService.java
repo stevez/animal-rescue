@@ -1,71 +1,61 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
-import java.util.Objects;
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
-import org.springframework.lang.NonNull;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 public class AdoptionService {
 
 	private final AnimalRepository animalRepository;
+	private final WebClient webClient;
 
-	public AdoptionService(AnimalRepository animalRepository) {
+	public AdoptionService(AnimalRepository animalRepository, @Value("${adoption-center.uri}") String adoptionCenterUri) {
 		this.animalRepository = animalRepository;
+		this.webClient = WebClient.builder()
+		                          .baseUrl(adoptionCenterUri)
+		                          .build();
 	}
 
-	public AdoptionRequest add(Long animalId, AdoptionRequest adoptionRequest) {
-		Optional<Animal> animal = this.animalRepository.findById(animalId);
-		return animal.map(a ->
-		{
-			a.getAdoptionRequests().add(adoptionRequest);
-			this.animalRepository.save(a);
-			return adoptionRequest;
-		})
-			.orElseThrow(() -> new IllegalArgumentException("Animal with ID " + animalId + " is not found"));
-	}
-
-	public AdoptionRequest update(@NonNull Long animalId, AdoptionRequest request) {
-		return this.animalRepository.findById(animalId)
+	public Mono<AdoptionRequest> add(Long animalId, AdoptionRequest adoptionRequest) {
+		return this.animalRepository
+			.findById(animalId)
 			.map(animal -> {
-				AdoptionRequest existingRequest = animal.getAdoptionRequests().stream()
-					.filter(adoptionRequest -> Objects.equals(request.getId(), adoptionRequest.getId()))
-					.findFirst()
-					.orElseThrow(() -> new IllegalArgumentException("Request with ID " + request.getId() + " is not found"));
-
-				if (!Objects.equals(existingRequest.getAdopterName(), request.getAdopterName())) {
-					throw new AccessDeniedException("User " + request.getAdopterName() + " has cannot edit user " + existingRequest.getAdopterName() + "'s adoption request");
-				}
-
-				existingRequest.setEmail(request.getEmail());
-				existingRequest.setAdopterName(request.getAdopterName());
-				existingRequest.setNotes(request.getNotes());
-
-				this.animalRepository.save(animal);
-
-				return existingRequest;
+				adoptionRequest.setAnimalId(animalId);
+				return webClient.post()
+				                .uri("/adoption-requests")
+				                .body(BodyInserters.fromValue(adoptionRequest))
+				                .retrieve()
+				                .bodyToMono(AdoptionRequest.class)
+				                .onErrorResume(
+					                e -> e instanceof WebClientResponseException &&
+						                HttpStatus.BAD_REQUEST.equals(((WebClientResponseException) e).getStatusCode()),
+					                e -> Mono.error(new IllegalArgumentException(e)));
 			})
-			.orElseThrow(() -> new IllegalArgumentException("Animal with ID " + animalId + " is not found"));
+			.orElse(Mono.error(new IllegalArgumentException("Animal with ID " + animalId + " is not found")));
 	}
 
-	public void delete(Long animalId, Long requestId, String currentPrincipalName) {
-		this.animalRepository.findById(animalId)
-			.map(animal -> {
-				AdoptionRequest existingRequest = animal.getAdoptionRequests().stream()
-					.filter(adoptionRequest -> Objects.equals(requestId, adoptionRequest.getId()))
-					.findFirst()
-					.orElseThrow(() -> new IllegalArgumentException("Request with ID " + requestId + " is not found"));
+	public Mono<AdoptionRequest> update(Long animalId, AdoptionRequest adoptionRequest) {
+		adoptionRequest.setAnimalId(animalId);
+		return webClient.put()
+		                .uri("/adoption-requests/" + adoptionRequest.getId())
+		                .body(BodyInserters.fromValue(adoptionRequest))
+		                .retrieve()
+		                .bodyToMono(AdoptionRequest.class);
+	}
 
-				if (!Objects.equals(existingRequest.getAdopterName(), currentPrincipalName)) {
-					throw new AccessDeniedException("User " + currentPrincipalName + " has cannot delete user " + existingRequest.getAdopterName() + "'s adoption request");
-				}
-
-				animal.getAdoptionRequests().remove(existingRequest);
-				this.animalRepository.save(animal);
-				return existingRequest;
-			})
-			.orElseThrow(() -> new IllegalArgumentException("Animal with ID " + animalId + " is not found"));
+	public Mono<Void> delete(Long animalId, Long requestId, String currentPrincipalName) {
+		return webClient.delete()
+		                .uri(uriBuilder -> uriBuilder.pathSegment("adoption-requests", Long.toString(requestId))
+		                                             .queryParam("adopter", currentPrincipalName)
+		                                             .queryParam("animalId", animalId)
+		                                             .build())
+		                .exchange()
+		                .then();
 	}
 }

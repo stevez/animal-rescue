@@ -1,10 +1,7 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
-import java.util.Objects;
-
 import org.springframework.data.annotation.Id;
 
-@SuppressWarnings("nullness")
 public class AdoptionRequest {
 	@Id
 	private Long id;
@@ -17,28 +14,11 @@ public class AdoptionRequest {
 
 	private String notes;
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		AdoptionRequest that = (AdoptionRequest) o;
-		return id.equals(that.id) &&
-			animalId.equals(that.animalId) &&
-			adopterName.equals(that.adopterName) &&
-			Objects.equals(email, that.email) &&
-			Objects.equals(notes, that.notes);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, animalId, adopterName, email, notes);
-	}
-
-	@Override
-	public String toString() {
+	@java.lang.Override
+	public java.lang.String toString() {
 		return "AdoptionRequest{" +
 			"id=" + id +
-			", animalId='" + animalId + '\'' +
+			", animalId=" + animalId +
 			", adopterName='" + adopterName + '\'' +
 			", email='" + email + '\'' +
 			", notes='" + notes + '\'' +
